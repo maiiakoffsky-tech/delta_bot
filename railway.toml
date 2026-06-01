@@ -1,0 +1,2 @@
+[deploy]
+startCommand = "python qwen_bot.py"
