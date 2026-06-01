@@ -78,7 +78,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
             extra_body["web_search_options"] = {"strategy": "always"}
 
         response = client.chat.completions.create(
-            model="qwen/qwen-2.5-72b-instruct",
+            model="openai/gpt-3.5-turbo",
             messages=messages_for_llm,
             extra_body=extra_body,
         )
