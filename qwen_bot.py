@@ -39,12 +39,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # -------------------------------------------------
 
     # Если пользователь не супер-пользователь, применяем ограничения
-    # (эта часть не меняется, только убираем обращение к user_sessions)
-    # Для простоты я тут не переписываю ограничения — они работают через словарь,
-    # но мы его убрали. Давай их тоже переделаем, но пока забьём, потом доделаем.
-    # Сейчас главное — заставить работать память.
-
-    # Чёрный список (оставляем как есть)
+    # (пока оставим как было, но без user_sessions)
     blacklist = {}
     if user_id in blacklist:
         await update.message.reply_text("Вы заблокированы.")
@@ -78,7 +73,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
             extra_body["web_search_options"] = {"strategy": "always"}
 
         response = client.chat.completions.create(
-            model="openai/gpt-3.5-turbo",
+            model="qwen/qwen-2.5-72b-instruct",
             messages=messages_for_llm,
             extra_body=extra_body,
         )
