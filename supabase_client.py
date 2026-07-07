@@ -1,5 +1,6 @@
 import os
 from supabase import create_client, Client
+from gotrue import SyncGoTrueClient
 from datetime import datetime
 
 SUPABASE_URL = "https://xobebksnoefgdnkjikhf.supabase.co"
@@ -7,11 +8,16 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 class DeltaMemory:
     def __init__(self):
-        # Отключаем прокси
+        # Создаем HTTP-клиент без прокси
+        http_client = httpx.Client(proxy=None)
+        
+        # Передаем его в клиент Supabase
         self.supabase: Client = create_client(
             SUPABASE_URL, 
             SUPABASE_KEY,
-            options={"proxy": None}
+            options={
+                "http_client": http_client
+            }
         )
 
     async def register_user(self, telegram_id: int, username: str = None, full_name: str = None):
