@@ -16,12 +16,13 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
 PORT = int(os.getenv("PORT", 10000))  # Render сам задаст порт
 
 client = openai.OpenAI(
-    api_key=OPENROUTER_API_KEY,
-    base_url="https://openrouter.ai/api/v1",
+    api_key=DEEPSEEK_API_KEY,
+    base_url=DEEPSEEK_BASE_URL,
     http_client=None
 )
 db = DeltaMemory()
@@ -72,9 +73,9 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         logger.info("🔄 Отправка запроса в OpenRouter...")
         response = client.chat.completions.create(
-            model="deepseek/deepseek-chat",
-            messages=messages_for_llm,
-            extra_body=extra_body,
+        model="deepseek-chat",  # или deepseek-reasoner
+        messages=messages_for_llm,
+        # extra_body не нужен — у DeepSeek свой поиск
         )
         bot_reply = response.choices[0].message.content
         logger.info(f"✅ Ответ получен: {bot_reply[:50]}...")
