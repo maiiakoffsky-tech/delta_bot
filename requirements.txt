@@ -1,5 +1,5 @@
 openai
 requests
-python-telegram-bot
+python-telegram-bot[webhooks]==20.7
 python-dotenv
 supabase
