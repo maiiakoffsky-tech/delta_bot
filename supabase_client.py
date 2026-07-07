@@ -7,17 +7,7 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 class DeltaMemory:
     def __init__(self):
-        # Создаем HTTP-клиент без прокси
-        http_client = httpx.Client(proxy=None)
-        
-        # Передаем его в клиент Supabase
-        self.supabase: Client = create_client(
-            SUPABASE_URL, 
-            SUPABASE_KEY,
-            options={
-                "http_client": http_client
-            }
-        )
+        self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
     async def register_user(self, telegram_id: int, username: str = None, full_name: str = None):
         try:
@@ -25,7 +15,7 @@ class DeltaMemory:
             if not existing.data:
                 self.supabase.table("users").insert({
                     "user_id": telegram_id,
-                    "username": username,
+                    "user_name": username,
                     "full_name": full_name,
                     "last_active": datetime.now().isoformat()
                 }).execute()
