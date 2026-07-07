@@ -73,19 +73,9 @@ def main():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
-    
-    # ВАЖНО: настройка вебхука
-    webhook_url = "https://delta-bot-n0bm.onrender.com"  # Твой URL
-    
-    print(f"🚀 Запускаю бота через вебхук на порту {PORT}")
-    print(f"🔗 Вебхук URL: {webhook_url}")
-    
-    app.run_webhook(
-        listen="0.0.0.0",
-        port=PORT,
-        webhook_url=webhook_url,
-        url_path=TELEGRAM_TOKEN  # Безопасность
-    )
+
+    print("🚀 Запускаю бота через polling (Background Worker)...")
+    app.run_polling()
 
 if __name__ == "__main__":
     main()
