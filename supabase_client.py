@@ -1,17 +1,15 @@
 import os
-from supabase_py import create_client, Client
+from supabase import create_client, Client  # <-- ЭТО ВАЖНО!
 from datetime import datetime
 
-# ТВОИ ДАННЫЕ (исправлено)
 SUPABASE_URL = "https://xobebksnoefgdnkjikhf.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvYmVia3Nub2VmZ2Rua2ppa2hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMjYwODksImV4cCI6MjA5NTkwMjA4OX0.dZaFe4ynqzoTIcme6M8HGAQMwr4DUHuvsHv5gZFWAUA"  # <-- НОВЫЙ КЛЮЧ
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvYmVia3Nub2VmZ2Rua2ppa2hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMjYwODksImV4cCI6MjA5NTkwMjA4OX0.dZaFe4ynqzoTIcme6M8HGAQMwr4DUHuvsHv5gZFWAUA"
 
 class DeltaMemory:
     def __init__(self):
         self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
     async def register_user(self, telegram_id: int, username: str = None, full_name: str = None):
-        """Записывает пользователя в базу, если его там еще нет"""
         try:
             existing = self.supabase.table("users").select("*").eq("user_id", telegram_id).execute()
             if not existing.data:
@@ -30,7 +28,6 @@ class DeltaMemory:
             print(f"❌ Ошибка регистрации: {e}")
 
     async def save_message(self, telegram_id: int, role: str, content: str):
-        """Сохраняет сообщение (user или assistant)"""
         try:
             self.supabase.table("messages").insert({
                 "user_id": telegram_id,
@@ -41,7 +38,6 @@ class DeltaMemory:
             print(f"❌ Ошибка сохранения сообщения: {e}")
 
     async def get_context(self, telegram_id: int, limit: int = 30):
-        """Получает последние N сообщений для контекста"""
         try:
             msgs = self.supabase.table("messages") \
                 .select("role, content") \
@@ -57,7 +53,6 @@ class DeltaMemory:
             return []
 
     async def create_order(self, telegram_id: int, order_details: str):
-        """Создает новый заказ/бронь"""
         try:
             self.supabase.table("orders").insert({
                 "user_id": telegram_id,
