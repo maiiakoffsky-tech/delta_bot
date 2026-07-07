@@ -29,13 +29,15 @@ class DeltaMemory:
 
     async def save_message(self, telegram_id: int, role: str, content: str):
         try:
-            self.supabase.table("messages").insert({
+            print(f"💾 Сохраняю: user_id={telegram_id}, role={role}, content={content[:30]}...")
+            result = self.supabase.table("messages").insert({
                 "user_id": telegram_id,
                 "role": role,
                 "content": content
             }).execute()
+            print(f"✅ Сохранено! ID: {result.data[0]['id'] if result.data else 'неизвестно'}")
         except Exception as e:
-            print(f"❌ Ошибка сохранения сообщения: {e}")
+            print(f"❌ Ошибка сохранения: {e}")
 
     async def get_context(self, telegram_id: int, limit: int = 30):
         try:
