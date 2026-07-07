@@ -72,7 +72,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         logger.info("🔄 Отправка запроса в OpenRouter...")
         response = client.chat.completions.create(
-            model="qwen/qwen-2.5-72b-instruct",
+            model="deepseek/deepseek-chat",
             messages=messages_for_llm,
             extra_body=extra_body,
         )
