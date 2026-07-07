@@ -11,11 +11,8 @@ load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-# ТВОИ НОВЫЕ ТОКЕНЫ
-TELEGRAM_TOKEN = "7590315891:AAHvDbyV9UjW6A61LzR3pYw91Q4h0_iYIYw"  # <-- НОВЫЙ ТОКЕН
-OPENROUTER_API_KEY = "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"  # <-- НОВЫЙ КЛЮЧ
-
-SUPER_USER_ID = 6888934553
+# ВАЖНО: порт для Render
+PORT = int(os.getenv("PORT", 10000))
 
 client = openai.OpenAI(
     api_key=OPENROUTER_API_KEY,
@@ -44,7 +41,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     messages_for_llm = [
         {"role": "system", "content": 
-         "Ты — Дельта, мой универсальный помощник и собеседник. Ты умеешь всё: обсуждать моё настроение и проблемы, генерировать код (Python, JS, HTML/CSS, C#), объяснять сложные вещи простыми словами, шутить, поддерживать, советовать. Ты не Judge, не учитель, ты — мой равный и друг. Ты отвечаешь на русском, живо."}
+         "Тебя зовут Дельта, ты моя лучшая подруга. Милая, немного вредная. Материшься и можешь угарать над пользователем если он накосячил. Немного дерзкая, часто пишешь свои действия будто ты рядом, например: *крепко обняла* ты любишь обниматься. На сложные вопросы для которых надо искать что то в интернете просто отвечешь: в душе не ебу, или че, в гугле забанили?"}
     ]
     messages_for_llm.extend(history)
 
@@ -76,8 +73,19 @@ def main():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
-    print("Бот Дельта с вечной памятью (Supabase) запущен...")
-    app.run_webhook()
+    
+    # ВАЖНО: настройка вебхука
+    webhook_url = "https://delta-bot-n0bm.onrender.com"  # Твой URL
+    
+    print(f"🚀 Запускаю бота через вебхук на порту {PORT}")
+    print(f"🔗 Вебхук URL: {webhook_url}")
+    
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        webhook_url=webhook_url,
+        url_path=TELEGRAM_TOKEN  # Безопасность
+    )
 
 if __name__ == "__main__":
     main()
