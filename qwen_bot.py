@@ -70,7 +70,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(f"Ошибка: {e}. Попробуй ещё раз.")
 
-def main():
+def main_alt():
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
@@ -87,6 +87,14 @@ def main():
         webhook_url=webhook_url,
         url_path=TELEGRAM_TOKEN
     )
+    
+def main():
+    app = Application.builder().token(TELEGRAM_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
+
+    print(f"🚀 Запускаю бота через polling на порту {PORT}")
+    app.run_polling()    
 
 if __name__ == "__main__":
     main()
