@@ -45,6 +45,9 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if user_id in blacklist:
         await update.message.reply_text("Вы заблокированы.")
         return
+    logger.info(f"📝 Пытаюсь сохранить сообщение: {user_message}")
+    await db.save_message(user_id, "user", user_message)
+    logger.info(f"✅ Сообщение сохранено")
 
     await db.save_message(user_id, "user", user_message)
     history = await db.get_context(user_id, limit=30)
