@@ -55,27 +55,14 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         {"role": "system", "content": 
          "Ты — Дельта, дружелюбный и живой помощник. Общаешься на русском языке в неформальном стиле. Можешь шутить, использовать эмодзи и выражать эмоции. Если не знаешь ответа — честно говоришь об этом. Ты не используешь грубость и нецензурную лексику."}
     ]
-    messages_for_llm.extend(history)
-
-    force_search_keywords = [
-        'погода', 'температура', 'ветер', 'дождь', 'снег', 'солнце',
-        'новости', 'сегодня', 'курс', 'доллар', 'евро', 'биткоин',
-        'время', 'час', 'минута', 'дата', 'число'
-    ]
-    need_force_search = any(keyword in user_message_lower for keyword in force_search_keywords)
-
-    logger.info(f"🔍 Поиск в интернете: {need_force_search}")
+    messages_for_llm.extend(history)  # Добавляем историю
+    messages_for_llm.append({"role": "user", "content": user_message})  # <-- ТЕКУЩЕЕ СООБЩЕНИЕ
 
     try:
-        extra_body = {"include_web_search": True}
-        if need_force_search:
-            extra_body["web_search_options"] = {"strategy": "always"}
-
-        logger.info("🔄 Отправка запроса в OpenRouter...")
+        logger.info("🔄 Отправка запроса в DeepSeek...")
         response = client.chat.completions.create(
-        model="deepseek-chat",  # или deepseek-reasoner
-        messages=messages_for_llm,
-        # extra_body не нужен — у DeepSeek свой поиск
+            model="deepseek-chat",
+            messages=messages_for_llm,
         )
         bot_reply = response.choices[0].message.content
         logger.info(f"✅ Ответ получен: {bot_reply[:50]}...")
