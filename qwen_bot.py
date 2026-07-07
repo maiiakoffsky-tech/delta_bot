@@ -16,7 +16,7 @@ PORT = int(os.getenv("PORT", 10000))  # Render сам задаст порт
 client = openai.OpenAI(
     api_key=OPENROUTER_API_KEY,
     base_url="https://openrouter.ai/api/v1",
-    http_client=httpx.Client(proxies={"http://": None, "https://": None})
+    # http_client=httpx.Client(proxies={"http://": None, "https://": None})
 )
 db = DeltaMemory()
 
