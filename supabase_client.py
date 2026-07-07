@@ -1,5 +1,5 @@
 import os
-from supabase import create_client, Client  # <-- ЭТО ВАЖНО!
+from supabase import create_client, Client
 from datetime import datetime
 
 SUPABASE_URL = "https://xobebksnoefgdnkjikhf.supabase.co"
