@@ -1,6 +1,5 @@
 import os
 from supabase import create_client, Client
-from gotrue import SyncGoTrueClient
 from datetime import datetime
 
 SUPABASE_URL = "https://xobebksnoefgdnkjikhf.supabase.co"
