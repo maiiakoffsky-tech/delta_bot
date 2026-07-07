@@ -2,7 +2,7 @@ import os
 from supabase import create_client, Client
 from datetime import datetime
 import logging
-
+logger = logging.getLogger(__name__)
 SUPABASE_URL = "https://xobebksnoefgdnkjikhf.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvYmVia3Nub2VmZ2Rua2ppa2hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMjYwODksImV4cCI6MjA5NTkwMjA4OX0.dZaFe4ynqzoTIcme6M8HGAQMwr4DUHuvsHv5gZFWAUA"
 
