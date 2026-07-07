@@ -7,7 +7,12 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 class DeltaMemory:
     def __init__(self):
-        self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        # Отключаем прокси
+        self.supabase: Client = create_client(
+            SUPABASE_URL, 
+            SUPABASE_KEY,
+            options={"proxy": None}
+        )
 
     async def register_user(self, telegram_id: int, username: str = None, full_name: str = None):
         try:
