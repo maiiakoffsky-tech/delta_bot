@@ -1,5 +1,5 @@
 import os
-from supabase import create_client, Client
+from supabase_py import create_client, Client
 from datetime import datetime
 
 # ТВОИ ДАННЫЕ (исправлено)
