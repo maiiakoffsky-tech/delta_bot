@@ -1,5 +1,5 @@
-openai
-requests
 python-telegram-bot[webhooks]==20.7
-python-dotenv
-supabase
+openai==1.12.0
+supabase==2.8.1
+python-dotenv==1.0.0
+requests==2.31.0
