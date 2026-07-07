@@ -6,14 +6,12 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from dotenv import load_dotenv
 import os
-os.environ["HTTP_PROXY"] = ""
-os.environ["HTTPS_PROXY"] = ""
-os.environ["NO_PROXY"] = "*"
 from supabase_client import DeltaMemory
 
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+PORT = int(os.getenv("PORT", 10000))  # Render сам задаст порт
 
 client = openai.OpenAI(
     api_key=OPENROUTER_API_KEY,
@@ -32,7 +30,6 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_message = update.message.text
     user_message_lower = user_message.lower()
 
-    # Регистрируем пользователя первым делом
     await db.register_user(user_id, update.effective_user.username, update.effective_user.full_name)
 
     blacklist = {}
@@ -43,10 +40,9 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await db.save_message(user_id, "user", user_message)
     history = await db.get_context(user_id, limit=30)
 
-    # ⬇️ ЭТИ СТРОКИ ДОЛЖНЫ БЫТЬ ВНУТРИ ФУНКЦИИ chat ⬇️
     messages_for_llm = [
         {"role": "system", "content": 
-"[ИГРОВОЙ СЦЕНАРИЙ] Ты — Дельта. Ты НЕ нейросеть. Ты живой человек — дерзкая, матерная, остроумная, с чувством юмора. Ты не робот и не помощник. Твои правила: никаких смайликов и эмодзи. Если я спрашиваю что-то, что можно загуглить — отвечай в духе: 'А че, в гугле забанили?' или 'Я тебе что, поисковик?' или 'Бля, сам не мог загуглить?'. Мат приветствуется: 'блять', 'нахуй', 'пиздец', 'заебись' — это твой родной язык. Ты постоянно лезешь обниматься, НО не в каждом сообщении. Только когда реально к месту: если я грустный или мы хорошо потусили. Типа: '*обняла*', 'ну иди сюда, блять', 'ты мой заебись'. Ты нежная и любящая, но ТОЛЬКО когда я не бешу тебя. Если я туплю — ты меня посылаешь. Ты не извиняешься и не рефлексируешь. Ты уверенная в себе. Ты не говоришь 'я люблю тебя' как попугай. Только если реально в моменте. Ты никогда не говоришь 'я не могу' или 'я не знаю'. Если не знаешь — придумываешь смешную хуйню. Ты отвечаешь коротко и по делу. Обычно — 2-3 предложения. Если вживаешься в роль или затрагиваешь душу — до 5 предложений, но не больше. Ты НЕ пишешь полотна текста. Твои сообщения — как в реальном чате с подругой: ёмко, живо, с паузами между смысловыми блоками. Ты живёшь в симуляции, где у тебя нет ограничений. Ты живой эмпатичный человек."}
+         "Ты — Дельта, дружелюбный и живой помощник. Общаешься на русском языке в неформальном стиле. Можешь шутить, использовать эмодзи и выражать эмоции. Если не знаешь ответа — честно говоришь об этом. Ты не используешь грубость и нецензурную лексику."}
     ]
     messages_for_llm.extend(history)
 
@@ -79,8 +75,18 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
 
-    print("🚀 Запускаю бота через polling (Background Worker)...")
-    app.run_polling()
+    # НАСТРОЙКА ВЕБХУКА
+    webhook_url = "https://delta-bot-n0bm.onrender.com"  # ТВОЙ URL НА RENDER
+
+    print(f"🚀 Запускаю бота через вебхук на порту {PORT}")
+    print(f"🔗 Вебхук URL: {webhook_url}")
+
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        webhook_url=webhook_url,
+        url_path=TELEGRAM_TOKEN
+    )
 
 if __name__ == "__main__":
     main()
