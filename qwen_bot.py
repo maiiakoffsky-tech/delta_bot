@@ -7,6 +7,12 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from dotenv import load_dotenv
 import os
 from supabase_client import DeltaMemory
+import logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -30,6 +36,8 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_message = update.message.text
     user_message_lower = user_message.lower()
 
+    logger.info(f"📩 Сообщение от {user_id}: {user_message}")
+
     await db.register_user(user_id, update.effective_user.username, update.effective_user.full_name)
 
     blacklist = {}
@@ -39,6 +47,8 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await db.save_message(user_id, "user", user_message)
     history = await db.get_context(user_id, limit=30)
+
+    logger.info(f"📚 История: {len(history)} сообщений")
 
     messages_for_llm = [
         {"role": "system", "content": 
@@ -53,21 +63,27 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
     need_force_search = any(keyword in user_message_lower for keyword in force_search_keywords)
 
+    logger.info(f"🔍 Поиск в интернете: {need_force_search}")
+
     try:
         extra_body = {"include_web_search": True}
         if need_force_search:
             extra_body["web_search_options"] = {"strategy": "always"}
 
+        logger.info("🔄 Отправка запроса в OpenRouter...")
         response = client.chat.completions.create(
             model="qwen/qwen-2.5-72b-instruct",
             messages=messages_for_llm,
             extra_body=extra_body,
         )
         bot_reply = response.choices[0].message.content
+        logger.info(f"✅ Ответ получен: {bot_reply[:50]}...")
+
         await db.save_message(user_id, "assistant", bot_reply)
         await update.message.reply_text(bot_reply)
 
     except Exception as e:
+        logger.error(f"❌ ОШИБКА: {e}", exc_info=True)
         await update.message.reply_text(f"Ошибка: {e}. Попробуй ещё раз.")
 
 def main_alt():
@@ -89,12 +105,13 @@ def main_alt():
     )
     
 def main():
+    logger.info("🚀 Запуск бота...")
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
 
-    print(f"🚀 Запускаю бота через polling на порту {PORT}")
-    app.run_polling()    
+    logger.info("✅ Обработчики добавлены")
+    app.run_polling()
 
 if __name__ == "__main__":
     main()
